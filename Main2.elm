@@ -44,7 +44,7 @@ init =
 type Msg
     = Reset
     | Add
-    | SubMsg Dice.Msg
+    | SubMsg Int Dice.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -65,20 +65,26 @@ update message model =
                 , Cmd.none
                 )
 
-        SubMsg msg ->
-            init
+        SubMsg msgId msg ->
+            let
+                subUpdate (( id, diceModel ) as entry) =
+                    if id == msgId then
+                        let
+                            ( newDice, fx ) =
+                                Dice.update msg diceModel
+                        in
+                            ( ( id, newDice )
+                            , Cmd.map (SubMsg id) fx
+                            )
+                    else
+                        ( entry, Cmd.none )
 
-
-
--- let
---   ( newDice, fx ) =
---       Dice.update msg
--- in
---   ( { model
---       |
---     }
---   )
--- View
+                ( newDiceList, fxList ) =
+                    model.diceList
+                        |> List.map subUpdate
+                        |> List.unzip
+            in
+                { model | diceList = newDiceList } ! fxList
 
 
 viewDice : ( Int, Dice.Model ) -> Html Msg
@@ -95,7 +101,7 @@ viewDice ( id, model ) =
             [ diceWrapperStyle
             , Html.Attributes.id ("dice-" ++ (toString id))
             ]
-            [ App.map SubMsg <| Dice.view model
+            [ App.map (SubMsg id) <| Dice.view model
             ]
 
 
