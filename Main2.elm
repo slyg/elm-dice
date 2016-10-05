@@ -48,7 +48,8 @@ init =
 type Msg
     = Reset
     | Add
-    | SubMsg Int Dice.Msg
+    | Remove DiceId
+    | SubMsg DiceId Dice.Msg
 
 
 initDice : ( DiceId, Dice.Model ) -> ( DiceId, Dice.Model )
@@ -84,10 +85,17 @@ update message model =
                 , Cmd.none
                 )
 
-        SubMsg msgId msg ->
+        Remove diceId ->
+            ( { model
+                | diceList = List.filter (\( id, _ ) -> diceId /= id) model.diceList
+              }
+            , Cmd.none
+            )
+
+        SubMsg diceId msg ->
             let
                 subUpdate (( id, diceModel ) as entry) =
-                    if id == msgId then
+                    if id == diceId then
                         let
                             ( newDice, fx ) =
                                 Dice.update msg diceModel
@@ -116,10 +124,15 @@ viewDice ( id, model ) =
                 , ( "margin", ".5em" )
                 , ( "textAlign", "center" )
                 ]
+
+        buttonStyle =
+            style [ ( "marginTop", ".5em" ) ]
     in
         div
             [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
-            [ App.map (SubMsg id) <| Dice.view model ]
+            [ App.map (SubMsg id) <| Dice.view model
+            , button [ onClick (Remove id), buttonStyle ] [ text "Remove" ]
+            ]
 
 
 view : Model -> Html Msg
@@ -136,7 +149,7 @@ view model =
     in
         div []
             [ div [ controlsStyle ]
-                [ button [ onClick Reset ] [ text "Reset" ]
+                [ button [ onClick Reset ] [ text "Reset All" ]
                 , button [ onClick Add ] [ text "Add" ]
                 ]
             , div [] dices
