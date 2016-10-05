@@ -21,7 +21,7 @@ main =
 
 
 type alias Model =
-    { diceList : List Dice.Model
+    { diceList : List ( Int, Dice.Model )
     , uid : Int
     }
 
@@ -59,7 +59,7 @@ update message model =
                     Dice.init
             in
                 ( { model
-                    | diceList = model.diceList ++ [ newDice ]
+                    | diceList = model.diceList ++ [ ( model.uid, newDice ) ]
                     , uid = model.uid + 1
                   }
                 , Cmd.none
@@ -81,8 +81,8 @@ update message model =
 -- View
 
 
-viewDice : Dice.Model -> Html Msg
-viewDice model =
+viewDice : ( Int, Dice.Model ) -> Html Msg
+viewDice ( id, model ) =
     let
         diceWrapperStyle =
             style
@@ -91,7 +91,10 @@ viewDice model =
                 , ( "textAlign", "center" )
                 ]
     in
-        div [ diceWrapperStyle ]
+        div
+            [ diceWrapperStyle
+            , Html.Attributes.id ("dice-" ++ (toString id))
+            ]
             [ App.map SubMsg <| Dice.view model
             ]
 
