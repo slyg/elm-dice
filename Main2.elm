@@ -47,11 +47,26 @@ type Msg
     | SubMsg Int Dice.Msg
 
 
+initDice : ( Int, Dice.Model ) -> ( Int, Dice.Model )
+initDice ( id, _ ) =
+    let
+        ( newDice, _ ) =
+            Dice.init
+    in
+        ( id, newDice )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         Reset ->
-            init
+            let
+                newDiceList =
+                    List.map initDice model.diceList
+            in
+                ( { model | diceList = newDiceList }
+                , Cmd.none
+                )
 
         Add ->
             let
