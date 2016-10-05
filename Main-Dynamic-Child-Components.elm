@@ -1,6 +1,7 @@
 module Main exposing (..)
 
-import Dice exposing (init)
+import Dict exposing (..)
+import Dice exposing (init, initialModel)
 import Html exposing (..)
 import Html.App as App
 import Html.Events exposing (..)
@@ -25,7 +26,7 @@ type alias DiceId =
 
 
 type alias Model =
-    { diceList : List ( DiceId, Dice.Model )
+    { diceDict : Dict DiceId Dice.Model
     , uid : Int
     }
 
@@ -36,9 +37,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [] 0
-    , Cmd.none
-    )
+    ( Model Dict.empty 0, Cmd.none )
 
 
 
@@ -49,16 +48,35 @@ type Msg
     = Reset
     | Add
     | Remove DiceId
-    | SubMsg DiceId Dice.Msg
+    | DiceMsg DiceId Dice.Msg
 
 
-initDice : ( DiceId, Dice.Model ) -> ( DiceId, Dice.Model )
-initDice ( id, _ ) =
+initDice : a -> b -> Dice.Model
+initDice _ _ =
+    initialModel
+
+
+handleDiceMsg : DiceId -> Dice.Msg -> Model -> ( Model, Cmd Msg )
+handleDiceMsg diceId msg model =
     let
-        ( newDice, _ ) =
-            Dice.init
+        diceModel =
+            case Dict.get diceId model.diceDict of
+                Just val ->
+                    val
+
+                Nothing ->
+                    initialModel
+
+        ( newDice, fx ) =
+            Dice.update msg diceModel
+
+        newDiceDict =
+            Dict.insert diceId newDice model.diceDict
+
+        updatedModel =
+            ({ model | diceDict = newDiceDict })
     in
-        ( id, newDice )
+        ( updatedModel, Cmd.map (DiceMsg diceId) fx )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,56 +84,34 @@ update message model =
     case message of
         Reset ->
             let
-                newDiceList =
-                    List.map initDice model.diceList
+                updatedModel =
+                    { model | diceDict = Dict.map initDice model.diceDict }
             in
-                ( { model | diceList = newDiceList }
-                , Cmd.none
-                )
+                ( updatedModel, Cmd.none )
 
         Add ->
             let
-                ( newDice, _ ) =
-                    Dice.init
+                updatedModel =
+                    { model
+                        | diceDict = Dict.insert model.uid initialModel model.diceDict
+                        , uid = model.uid + 1
+                    }
             in
-                ( { model
-                    | diceList = model.diceList ++ [ ( model.uid, newDice ) ]
-                    , uid = model.uid + 1
-                  }
-                , Cmd.none
-                )
+                ( updatedModel, Cmd.none )
 
         Remove diceId ->
-            ( { model
-                | diceList = List.filter (\( id, _ ) -> diceId /= id) model.diceList
-              }
-            , Cmd.none
-            )
-
-        SubMsg diceId msg ->
             let
-                subUpdate (( id, diceModel ) as entry) =
-                    if id == diceId then
-                        let
-                            ( newDice, fx ) =
-                                Dice.update msg diceModel
-                        in
-                            ( ( id, newDice )
-                            , Cmd.map (SubMsg id) fx
-                            )
-                    else
-                        ( entry, Cmd.none )
-
-                ( newDiceList, fxList ) =
-                    model.diceList
-                        |> List.map subUpdate
-                        |> List.unzip
+                updatedModel =
+                    { model | diceDict = Dict.remove diceId model.diceDict }
             in
-                { model | diceList = newDiceList } ! fxList
+                ( updatedModel, Cmd.none )
+
+        DiceMsg diceId msg ->
+            handleDiceMsg diceId msg model
 
 
-viewDice : ( DiceId, Dice.Model ) -> Html Msg
-viewDice ( id, model ) =
+viewDice : DiceId -> Dice.Model -> Html Msg
+viewDice id model =
     let
         diceWrapperStyle =
             style
@@ -130,7 +126,7 @@ viewDice ( id, model ) =
     in
         div
             [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
-            [ App.map (SubMsg id) <| Dice.view model
+            [ App.map (DiceMsg id) <| Dice.view model
             , button [ onClick (Remove id), buttonStyle ] [ text "Remove" ]
             ]
 
@@ -145,7 +141,7 @@ view model =
                 ]
 
         dices =
-            List.map viewDice model.diceList
+            Dict.map viewDice model.diceDict |> Dict.values
     in
         div []
             [ div [ controlsStyle ]
