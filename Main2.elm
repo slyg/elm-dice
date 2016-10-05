@@ -20,8 +20,12 @@ main =
 -- Model
 
 
+type alias DiceId =
+    Int
+
+
 type alias Model =
-    { diceList : List ( Int, Dice.Model )
+    { diceList : List ( DiceId, Dice.Model )
     , uid : Int
     }
 
@@ -47,7 +51,7 @@ type Msg
     | SubMsg Int Dice.Msg
 
 
-initDice : ( Int, Dice.Model ) -> ( Int, Dice.Model )
+initDice : ( DiceId, Dice.Model ) -> ( DiceId, Dice.Model )
 initDice ( id, _ ) =
     let
         ( newDice, _ ) =
@@ -102,22 +106,20 @@ update message model =
                 { model | diceList = newDiceList } ! fxList
 
 
-viewDice : ( Int, Dice.Model ) -> Html Msg
+viewDice : ( DiceId, Dice.Model ) -> Html Msg
 viewDice ( id, model ) =
     let
         diceWrapperStyle =
             style
                 [ ( "width", "5em" )
-                , ( "margin", "1em auto" )
+                , ( "float", "left" )
+                , ( "margin", ".5em" )
                 , ( "textAlign", "center" )
                 ]
     in
         div
-            [ diceWrapperStyle
-            , Html.Attributes.id ("dice-" ++ (toString id))
-            ]
-            [ App.map (SubMsg id) <| Dice.view model
-            ]
+            [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
+            [ App.map (SubMsg id) <| Dice.view model ]
 
 
 view : Model -> Html Msg
@@ -125,8 +127,8 @@ view model =
     let
         controlsStyle =
             style
-                [ ( "textAlign", "center" )
-                , ( "margin", "1em auto" )
+                [ ( "textAlign", "left" )
+                , ( "margin", "1em" )
                 ]
 
         dices =
