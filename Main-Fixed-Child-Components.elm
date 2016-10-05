@@ -97,14 +97,15 @@ view model =
     let
         controlsStyle =
             style
-                [ ( "textAlign", "center" )
-                , ( "margin", "1em auto" )
+                [ ( "textAlign", "left" )
+                , ( "margin", "1em" )
                 ]
 
         diceWrapperStyle =
             style
                 [ ( "width", "5em" )
-                , ( "margin", "1em auto" )
+                , ( "float", "left" )
+                , ( "margin", ".5em" )
                 , ( "textAlign", "center" )
                 ]
     in
