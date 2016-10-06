@@ -52,19 +52,52 @@ update msg model =
 -- VIEW
 
 
+dieFace : Int -> String
+dieFace x =
+    case x of
+        1 ->
+            "⚀"
+
+        2 ->
+            "⚁"
+
+        3 ->
+            "⚂"
+
+        4 ->
+            "⚃"
+
+        5 ->
+            "⚄"
+
+        6 ->
+            "⚅"
+
+        _ ->
+            ""
+
+
 view : Model -> Html Msg
 view model =
     let
-        diceStyle =
+        diceWrapperStyle =
             style
                 [ ( "textAlign", "center" )
                 , ( "fontFamily", "Tahoma" )
                 , ( "backgroundColor", "#eee" )
                 , ( "padding", "1em" )
+                , ( "borderRadius", ".3em" )
+                ]
+
+        diceStyle =
+            style
+                [ ( "fontSize", "3em" )
+                , ( "cursor", "pointer" )
+                , ( "margin", "0" )
                 ]
     in
-        div [ diceStyle ]
-            [ p [] [ text (toString model.dieFace) ]
+        div [ diceWrapperStyle ]
+            [ p [ diceStyle, onClick Roll ] [ text (dieFace model.dieFace) ]
             , button [ onClick Roll ] [ text "Roll" ]
             ]
 
