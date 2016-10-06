@@ -1,4 +1,4 @@
-module Dice exposing (Model, Msg, init, update, view)
+module Dice exposing (Model, Msg, init, update, view, initialModel)
 
 import Html exposing (..)
 import Html.App as Html
@@ -115,9 +115,12 @@ subscriptions model =
 -- INIT
 
 
+initialModel =
+    { dieFace = 1 }
+
+
 init : ( Model, Cmd Msg )
 init =
-    ( { dieFace = 1
-      }
+    ( initialModel
     , Cmd.none
     )
