@@ -1,4 +1,4 @@
-module Dice exposing (Model, Msg, init, update, view, initialModel)
+module Dice exposing (..)
 
 import Html exposing (..)
 import Html.App as Html

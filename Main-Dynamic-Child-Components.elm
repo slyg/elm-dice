@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Dict exposing (..)
-import Dice exposing (init, initialModel)
+import Dice exposing (..)
 import Html exposing (..)
 import Html.App as App
 import Html.Events exposing (..)
@@ -45,10 +45,14 @@ init =
 
 
 type Msg
-    = Reset
+    = ResetAll
     | Add
     | Remove DiceId
     | DiceMsg DiceId Dice.Msg
+
+
+
+-- | RollAll
 
 
 initDice : a -> b -> Dice.Model
@@ -82,10 +86,13 @@ handleDiceMsg diceId msg model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        Reset ->
+        ResetAll ->
             let
+                passReset =
+                    \_ entry -> Dice.update Dice.Reset entry |> fst
+
                 updatedModel =
-                    { model | diceDict = Dict.map initDice model.diceDict }
+                    { model | diceDict = Dict.map passReset model.diceDict }
             in
                 ( updatedModel, Cmd.none )
 
@@ -124,8 +131,7 @@ viewDice id model =
         buttonStyle =
             style [ ( "marginTop", ".5em" ) ]
     in
-        div
-            [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
+        div [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
             [ App.map (DiceMsg id) <| Dice.view model
             , button [ onClick (Remove id), buttonStyle ] [ text "Remove" ]
             ]
@@ -145,7 +151,7 @@ view model =
     in
         div []
             [ div [ controlsStyle ]
-                [ button [ onClick Reset ] [ text "Reset All" ]
+                [ button [ onClick ResetAll ] [ text "Reset All" ]
                 , button [ onClick Add ] [ text "Add" ]
                 ]
             , div [] dices
