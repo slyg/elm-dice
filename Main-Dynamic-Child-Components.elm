@@ -46,6 +46,7 @@ init =
 
 type Msg
     = ResetAll
+    | RollAll
     | Add
     | Remove DiceId
     | DiceMsg DiceId Dice.Msg
@@ -86,21 +87,23 @@ handleDiceMsg diceId msg model =
 handleGlobalMessage : Dice.Msg -> Model -> ( Model, Cmd Msg )
 handleGlobalMessage msg model =
     let
-        passMsg : DiceId -> Dice.Model -> ( Dice.Model, Cmd Dice.Msg )
-        passMsg _ model =
+        update : DiceId -> Dice.Model -> ( Dice.Model, Cmd Dice.Msg )
+        update _ model =
             Dice.update msg model
 
         updateDiceModel : DiceId -> Dice.Model -> Dice.Model
         updateDiceModel id model =
-            passMsg id model |> fst
+            update id model |> fst
 
+        getDiceEffect : DiceId -> Dice.Model -> Cmd Dice.Msg
         getDiceEffect id model =
-            passMsg id model |> snd
+            update id model |> snd
 
         effects : Dict DiceId (Cmd Dice.Msg)
         effects =
             Dict.map getDiceEffect model.diceDict
 
+        effectsApplied : Dict DiceId (Cmd Msg)
         effectsApplied =
             Dict.map (\id fx -> Cmd.map (DiceMsg id) fx) effects
 
@@ -115,6 +118,9 @@ update message model =
     case message of
         ResetAll ->
             handleGlobalMessage Dice.Reset model
+
+        RollAll ->
+            handleGlobalMessage Dice.Roll model
 
         Add ->
             let
@@ -172,6 +178,7 @@ view model =
         div []
             [ div [ controlsStyle ]
                 [ button [ onClick ResetAll ] [ text "Reset All" ]
+                , button [ onClick RollAll ] [ text "Roll All" ]
                 , button [ onClick Add ] [ text "Add" ]
                 ]
             , div [] dices
