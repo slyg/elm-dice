@@ -128,6 +128,10 @@ update message model =
             handleDiceMsg diceId msg model
 
 
+
+-- View
+
+
 viewDice : DiceId -> Dice.Model -> Html Msg
 viewDice id model =
     let
