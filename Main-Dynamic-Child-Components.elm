@@ -52,10 +52,6 @@ type Msg
     | DiceMsg DiceId Dice.Msg
 
 
-
--- | RollAll
-
-
 initDice : a -> b -> Dice.Model
 initDice _ _ =
     initialModel
@@ -95,6 +91,7 @@ handleGlobalMsg msg model =
         updates =
             Dict.map update model.diceDict
 
+        effects : List (Cmd Msg)
         effects =
             Dict.map (\_ ( model, fx ) -> fx) updates
                 |> Dict.map (\id fx -> Cmd.map (DiceMsg id) fx)
