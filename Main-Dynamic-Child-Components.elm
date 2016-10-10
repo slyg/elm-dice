@@ -86,14 +86,28 @@ handleDiceMsg diceId msg model =
 handleGlobalMessage : Dice.Msg -> Model -> ( Model, Cmd Msg )
 handleGlobalMessage msg model =
     let
-        passMsg : DiceId -> Dice.Model -> Dice.Model
-        passMsg _ entry =
-            Dice.update msg entry |> fst
+        passMsg : DiceId -> Dice.Model -> ( Dice.Model, Cmd Dice.Msg )
+        passMsg _ model =
+            Dice.update msg model
+
+        updateDiceModel : DiceId -> Dice.Model -> Dice.Model
+        updateDiceModel id model =
+            passMsg id model |> fst
+
+        getDiceEffect id model =
+            passMsg id model |> snd
+
+        effects : Dict DiceId (Cmd Dice.Msg)
+        effects =
+            Dict.map getDiceEffect model.diceDict
+
+        effectsApplied =
+            Dict.map (\id fx -> Cmd.map (DiceMsg id) fx) effects
 
         updatedModel =
-            { model | diceDict = Dict.map passMsg model.diceDict }
+            { model | diceDict = Dict.map updateDiceModel model.diceDict }
     in
-        ( updatedModel, Cmd.none )
+        updatedModel ! Dict.values effectsApplied
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
