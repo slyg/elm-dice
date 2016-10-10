@@ -84,8 +84,8 @@ handleDiceMsg diceId msg model =
         ( updatedModel, Cmd.map (DiceMsg diceId) fx )
 
 
-handleGlobalMessage : Dice.Msg -> Model -> ( Model, Cmd Msg )
-handleGlobalMessage msg model =
+handleGlobalMsg : Dice.Msg -> Model -> ( Model, Cmd Msg )
+handleGlobalMsg msg model =
     let
         update : DiceId -> Dice.Model -> ( Dice.Model, Cmd Dice.Msg )
         update _ model =
@@ -117,10 +117,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         ResetAll ->
-            handleGlobalMessage Dice.Reset model
+            handleGlobalMsg Dice.Reset model
 
         RollAll ->
-            handleGlobalMessage Dice.Roll model
+            handleGlobalMsg Dice.Roll model
 
         Add ->
             let
