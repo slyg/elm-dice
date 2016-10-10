@@ -52,11 +52,6 @@ type Msg
     | DiceMsg DiceId Dice.Msg
 
 
-initDice : a -> b -> Dice.Model
-initDice _ _ =
-    initialModel
-
-
 handleDiceMsg : DiceId -> Dice.Msg -> Model -> ( Model, Cmd Msg )
 handleDiceMsg diceId msg model =
     let
