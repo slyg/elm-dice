@@ -21,7 +21,7 @@ main =
 
 
 type alias Model =
-    { dieFace : Int
+    { dieFace : Maybe Int
     }
 
 
@@ -45,36 +45,41 @@ update msg model =
             ( model, Random.generate NewFace (Random.int 1 6) )
 
         NewFace newFace ->
-            ( { model | dieFace = newFace }, Cmd.none )
+            ( { model | dieFace = Just newFace }, Cmd.none )
 
 
 
 -- VIEW
 
 
-dieFace : Int -> String
+dieFace : Maybe Int -> String
 dieFace x =
     case x of
-        1 ->
-            "⚀"
+        Just face ->
+            case face of
+                1 ->
+                    "⚀"
 
-        2 ->
-            "⚁"
+                2 ->
+                    "⚁"
 
-        3 ->
-            "⚂"
+                3 ->
+                    "⚂"
 
-        4 ->
-            "⚃"
+                4 ->
+                    "⚃"
 
-        5 ->
-            "⚄"
+                5 ->
+                    "⚄"
 
-        6 ->
-            "⚅"
+                6 ->
+                    "⚅"
 
-        _ ->
-            ""
+                _ ->
+                    "⚊"
+
+        Nothing ->
+            "⚊"
 
 
 view : Model -> Html Msg
@@ -116,7 +121,7 @@ subscriptions model =
 
 
 initialModel =
-    { dieFace = 1 }
+    { dieFace = Nothing }
 
 
 init : ( Model, Cmd Msg )
