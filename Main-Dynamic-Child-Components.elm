@@ -83,18 +83,24 @@ handleDiceMsg diceId msg model =
         ( updatedModel, Cmd.map (DiceMsg diceId) fx )
 
 
+handleGlobalMessage : Dice.Msg -> Model -> ( Model, Cmd Msg )
+handleGlobalMessage msg model =
+    let
+        passMsg : DiceId -> Dice.Model -> Dice.Model
+        passMsg _ entry =
+            Dice.update msg entry |> fst
+
+        updatedModel =
+            { model | diceDict = Dict.map passMsg model.diceDict }
+    in
+        ( updatedModel, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         ResetAll ->
-            let
-                passReset =
-                    \_ entry -> Dice.update Dice.Reset entry |> fst
-
-                updatedModel =
-                    { model | diceDict = Dict.map passReset model.diceDict }
-            in
-                ( updatedModel, Cmd.none )
+            handleGlobalMessage Dice.Reset model
 
         Add ->
             let
