@@ -3,13 +3,12 @@ module Main exposing (..)
 import Dict exposing (..)
 import Dice exposing (..)
 import Html exposing (..)
-import Html.App as App
 import Html.Events exposing (..)
 import Html.Attributes exposing (style)
 
 
 main =
-    App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -147,7 +146,7 @@ viewDice id model =
             style [ ( "marginTop", ".5em" ) ]
     in
         div [ diceWrapperStyle, Html.Attributes.id ("dice-" ++ (toString id)) ]
-            [ App.map (DiceMsg id) <| Dice.view model
+            [ Html.map (DiceMsg id) <| Dice.view model
             , button [ onClick (Remove id), buttonStyle ] [ text "Remove" ]
             ]
 

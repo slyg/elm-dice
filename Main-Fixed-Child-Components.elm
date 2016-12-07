@@ -2,13 +2,12 @@ module Main exposing (..)
 
 import Dice
 import Html exposing (..)
-import Html.App as App
 import Html.Events exposing (..)
 import Html.Attributes exposing (style)
 
 
 main =
-    App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -111,6 +110,6 @@ view model =
     in
         div []
             [ div [ controlsStyle ] [ button [ onClick Reset ] [ text "Reset" ] ]
-            , div [ diceWrapperStyle ] [ App.map Top (Dice.view model.topDice) ]
-            , div [ diceWrapperStyle ] [ App.map Bottom (Dice.view model.bottomDice) ]
+            , div [ diceWrapperStyle ] [ Html.map Top (Dice.view model.topDice) ]
+            , div [ diceWrapperStyle ] [ Html.map Bottom (Dice.view model.bottomDice) ]
             ]
